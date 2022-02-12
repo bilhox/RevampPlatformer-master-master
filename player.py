@@ -6,25 +6,42 @@ from constants import *
 class Player:
     def __init__(self, pos):
         self.pos = pos
-        self.direction = pygame.math.Vector2(0,0)
-
-        self.image = pygame.Surface((8,12))
+        self.size = [8 , 12]
+        self.velocity = pygame.math.Vector2(0,0)
+        self.image = pygame.Surface(self.size.copy())
         self.image.fill("red")
-        self.rect = self.image.get_rect(topleft=pos)
-
-    def event_handler(self):
-        keys = pygame.key.get_pressed()
-
-        if keys[K_RIGHT]:
-            self.direction.x = 1
-        if keys[K_LEFT]:
-            self.direction.x = -1
-        if keys[K_SPACE]:
-            pass
         
+        self.key_pressed = {"right":False , "left":False , "up":False}
+
+    @property
+    def rect(self):
+        return Rect(self.pos[0] // 1 , self.pos[1] // 1 , self.size[0] , self.size[1])
+    
+    def event_handler(self , event : pygame.event.Event):
+             
+        if event.type == KEYDOWN:
+            if event.key == K_RIGHT:
+                self.key_pressed["right"] = True
+            if event.key == K_LEFT:
+                self.key_pressed["left"] = True
+        elif event.type == KEYUP:
+            if event.key == K_RIGHT:
+                self.key_pressed["right"] = False
+            if event.key == K_LEFT:
+                self.key_pressed["left"] = False
+        
+    def move(self , movement : pygame.math.Vector2):
+        self.pos[0] += movement.x
+        self.pos[1] += movement.y
 
     def update(self): 
-        self.event_handler()
-        self.rect.x += self.direction.x
-        self.rect.y += self.direction.y
+        
+        movement = pygame.math.Vector2(self.velocity.x , self.velocity.y)
+        
+        if self.key_pressed["right"]:
+            movement.x += 1
+        elif self.key_pressed["left"]:
+            movement.x -= 1
+        
+        self.move(movement)
     
